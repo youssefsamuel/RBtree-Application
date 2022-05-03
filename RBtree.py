@@ -90,7 +90,7 @@ class RBtree:
             return
         if node.parent.parent == self.tnil:
             return   
-        while node.parent.color == "RED":
+        while node.color == "RED" and node.parent.color == "RED":
             if node.parent.parent.left == node.parent:
                 if node.parent.parent.right == self.tnil:
                     uncle_present = False
