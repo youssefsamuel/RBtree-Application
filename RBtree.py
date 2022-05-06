@@ -16,11 +16,7 @@ class RBtree:
 
     def size(self):
         return self.size
-
-    def max(a, b):
-        if a > b:
-            return a
-        return b    
+    
     def get_height(self, node):
         if node == self.tnil:
             return 0
@@ -46,12 +42,12 @@ class RBtree:
         if node == self.tnil or node.right == self.tnil:
             return 
         y = node.right
-        if y.left:
-            node.right = y.left
+        node.right = y.left
+        if y.left != self.tnil:
             y.left.parent = node
         else:
             node.right = self.tnil   
-        if node.parent:
+        if node.parent != self.tnil:
             y.parent = node.parent
             if node.parent.left == node:
                 node.parent.left = y
@@ -66,13 +62,13 @@ class RBtree:
     def rotate_right(self, node):
         if node == self.tnil or node.left == self.tnil:
             return    
-        y = node.left
-        if y.right:
-            node.left = y.right
+        y = node.left            
+        node.left = y.right
+        if y.right != self.tnil:
             y.right.parent = node
         else:
             node.left = self.tnil    
-        if node.parent:
+        if node.parent != self.tnil:
             y.parent = node.parent    
             if node.parent.left == node:
                 node.parent.left = y
@@ -85,68 +81,50 @@ class RBtree:
         return 
 
     def fix_insert(self, node):
-        if node.parent == self.tnil: 
-            node.color = "BLACK"
-            return
         if node.parent.parent == self.tnil:
             return   
         while node.color == "RED" and node.parent.color == "RED":
-            if node.parent.parent.left == node.parent:
-                if node.parent.parent.right == self.tnil:
-                    uncle_present = False
-                else:
-                    uncle_present = True
-                consider_Black = True    
-                if uncle_present:
-                    if node.parent.parent.right.color == "RED":
-                        consider_Black = False           
-                if uncle_present and not consider_Black:
+            if node.parent.parent.left == node.parent: #Parent is a left child
+                if node.parent.parent.right.color == "RED": #if uncle is RED --> CASE 1
                     y = node.parent.parent.right
                     node.parent.color = "BLACK"
                     y.color = "BLACK"
                     node.parent.parent.color = "RED"
                     node = node.parent.parent
                 else:
-                        if node == node.parent.right:
+                        if node == node.parent.right: #if the node is a right child --> CASE 2
                             node = node.parent
                             self.rotate_left(node)
-                        node.parent.color = "BLACK"
+                        node.parent.color = "BLACK" # CASE 3
                         node.parent.parent.color = "RED"
                         self.rotate_right(node.parent.parent)
                         node = node.parent
-            else:
-                if node.parent.parent.left == self.tnil:
-                    uncle_present = False
-                else:
-                    uncle_present = True
-                consider_Black = True    
-                if uncle_present:
-                    if node.parent.parent.left.color == "RED":
-                        consider_Black = False 
-                if uncle_present and not consider_Black:
+            else: #Parent is a left child
+                if node.parent.parent.left.color == "RED": #if uncle is RED --> CASE 1
                     y = node.parent.parent.left
-                    if y.color == "RED": 
+                    if y.color == "RED":  
                         node.parent.color = "BLACK"
                         y.color = "BLACK"
                         node.parent.parent.color = "RED"
                         node = node.parent.parent
                 else:    
-                    if node == node.parent.left:
+                    if node == node.parent.left: #if the node is a right child --> CASE 2
                         node = node.parent
                         self.rotate_right(node)
-                    node.parent.color = "BLACK"
+                    node.parent.color = "BLACK" # CASE 3
                     node.parent.parent.color = "RED"
                     self.rotate_left(node.parent.parent)
                     node = node.parent
+            self.tnil.parent = self.root        
             if node.parent == self.tnil:
                 node.color = "BLACK"
                 self.root = node
+                self.tnil.parent = self.root
                 return 
             else:
                 if node.parent.color == "BLACK":
                     return 
-             
-
+        
     def insert(self, node, key):
         if node == self.tnil:
             self.root = Node(key)
@@ -158,6 +136,7 @@ class RBtree:
             return
         while True:
             if node.key.lower() == key.lower():
+                print("ERROR: Word already in the dictioanary!")
                 return
             if key.lower() < node.key.lower():
                 if node.left != self.tnil:
@@ -195,7 +174,7 @@ def load_dictionnary(filename, tree):
 
 def main():
     t = RBtree()
-    filename = 'D:/CCE/6th_term/Data Structures/codes/EN-US-Dictionary.txt'
+    filename = 'EN-US-Dictionary.txt'
     t = load_dictionnary(filename, t)
     print("Dictioanny successfully loaded into Red-Black tree.")
     while True:
